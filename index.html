@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J.A.R.V.I.S. School OS</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a0f;
+      color: #e0e0e0;
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* === JARVIS BACKGROUND GRID === */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background:
+        linear-gradient(rgba(0, 195, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 195, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: -1;
+      animation: gridMove 20s linear infinite;
+    }
+
+    @keyframes gridMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(50px, 50px); }
+    }
+
+    /* === GLOW EFFECT === */
+    .glow {
+      text-shadow: 0 0 10px rgba(0, 195, 255, 0.5),
+                   0 0 20px rgba(0, 195, 255, 0.3);
+    }
+
+    /* === TOP BAR === */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid rgba(0, 195, 255, 0.15);
+      background: rgba(10, 10, 15, 0.9);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      color: #00c3ff;
+      letter-spacing: 3px;
+    }
+
+    .topbar .time {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      color: #00c3ff;
+      opacity: 0.8;
+    }
+
+    /* === JARVIS GREETING === */
+    .jarvis-greeting {
+      padding: 30px 20px 10px;
+      text-align: center;
+    }
+
+    .jarvis-greeting .hello {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: #00c3ff;
+      margin-bottom: 5px;
+      animation: fadeIn 1s ease;
+    }
+
+    .jarvis-greeting .date {
+      font-size: 1rem;
+      color: #5a8a9a;
+      animation: fadeIn 1.5s ease;
+    }
+
+    /* === JARVIS MESSAGE BOX === */
+    .jarvis-message {
+      margin: 20px;
+      padding: 20px;
+      background: rgba(0, 195, 255, 0.05);
+      border: 1px solid rgba(0, 195, 255, 0.15);
+      border-radius: 12px;
+      position: relative;
+      animation: fadeIn 2s ease;
+    }
+
+    .jarvis-message::before {
+      content: 'J.A.R.V.I.S.';
+      position: absolute;
+      top: -10px;
+      left: 15px;
+      background: #0a0a0f;
+      padding: 0 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      color: #00c3ff;
+      letter-spacing: 2px;
+    }
+
+    .jarvis-message p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #b0d4e8;
+    }
+
+    .jarvis-message .typing {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #00c3ff;
+      border-radius: 50%;
+      animation: blink 1s infinite;
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    /* === STATUS CARDS === */
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 0 20px;
+      margin-top: 20px;
+    }
+
+    .status-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 195, 255, 0.1);
+      border-radius: 12px;
+      padding: 18px 15px;
+      text-align: center;
+      transition: all 0.3s;
+      animation: slideUp 0.5s ease;
+    }
+
+    .status-card:hover {
+      border-color: rgba(0, 195, 255, 0.4);
+      background: rgba(0, 195, 255, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .status-card .icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .status-card .label { font-size: 0.75rem; color: #5a8a9a; text-transform: uppercase; letter-spacing: 1px; }
+    .status-card .value { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; color: #00c3ff; margin-top: 5px; }
+
+    .status-card.danger .value { color: #ff4757; }
+    .status-card.warning .value { color: #ffa502; }
+    .status-card.success .value { color: #2ed573; }
+
+    /* === SECTION === */
+    .section {
+      margin: 25px 20px;
+      animation: slideUp 0.6s ease;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      color: #00c3ff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .section-line {
+      flex-grow: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(0, 195, 255, 0.3), transparent);
+      margin-left: 15px;
+    }
+
+    /* === SCHEDULE === */
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(0, 195, 255, 0.08);
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+
+    .schedule-item:hover {
+      border-color: rgba(0, 195, 255, 0.3);
+    }
+
+    .schedule-item.active {
+      border-color: #00c3ff;
+      background: rgba(0, 195, 255, 0.08);
+    }
+
+    .schedule-item .time-badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      color: #00c3ff;
+      background: rgba(0, 195, 255, 0.1);
+      padding: 5px 10px;
+      border-radius: 6px;
+      margin-right: 12px;
+      min-width: 55px;
+      text-align: center;
+    }
+
+    .schedule-item .subject { font-size: 1rem; color: #e0e0e0; }
+    .schedule-item .room { font-size: 0.8rem; color: #5a8a9a; margin-left: auto; }
+
+    /* === TASKS === */
+    .task-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(0, 195, 255, 0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .task-item:hover {
+      border-color: rgba(0, 195, 255, 0.3);
+    }
+
+    .task-item.done {
+      opacity: 0.4;
+      text-decoration: line-through;
+    }
+
+    .task-checkbox {
+      width: 22px;
+      height: 22px;
+      border: 2px solid rgba(0, 195, 255, 0.4);
+      border-radius: 6px;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+
+    .task-item.done .task-checkbox {
+      background: #00c3ff;
+      border-color: #00c3ff;
+    }
+
+    .task-item.done .task-checkbox::after {
+      content: '✓';
+      color: #0a0a0f;
+      font-weight: bold;
+      font-size: 0.8rem;
+    }
+
+    .task-subject {
+      font-size: 0.75rem;
+      color: #00c3ff;
+      background: rgba(0, 195, 255, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: auto;
+    }
+
+    /* === EXAM COUNTDOWN === */
+    .exam-card {
+      padding: 15px;
+      margin-bottom: 10px;
+      background: rgba(255, 71, 87, 0.05);
+      border: 1px solid rgba(255, 71, 87, 0.2);
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .exam-card.soon {
+      border-color: rgba(255, 71, 87, 0.5);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+      50% { box-shadow: 0 0 15px rgba(255, 71, 87, 0.15); }
+    }
+
+    .exam-name { font-size: 1rem; }
+    .exam-days {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      color: #ff4757;
+    }
+
+    /* === GRADE DISPLAY === */
+    .grade-bar {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(0, 195, 255, 0.08);
+      border-radius: 10px;
+    }
+
+    .grade-subject { width: 80px; font-size: 0.9rem; }
+    .grade-track {
+      flex-grow: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      margin: 0 12px;
+      overflow: hidden;
+    }
+
+    .grade-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+
+    .grade-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      min-width: 30px;
+      text-align: right;
+    }
+
+    /* === ADD BUTTON === */
+    .fab {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 55px;
+      height: 55px;
+      background: #00c3ff;
+      border: none;
+      border-radius: 50%;
+      color: #0a0a0f;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 195, 255, 0.4);
+      z-index: 100;
+      transition: all 0.3s;
+    }
+
+    .fab:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(0, 195, 255, 0.6);
+    }
+
+    /* === MODAL === */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 200;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: #12121a;
+      border: 1px solid rgba(0, 195, 255, 0.2);
+      border-radius: 15px;
+      padding: 25px;
+      width: 90%;
+      max-width: 400px;
+      animation: slideUp 0.3s ease;
+    }
+
+    .modal h3 {
+      font-family: 'Orbitron', sans-serif;
+      color: #00c3ff;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+    }
+
+    .modal input, .modal select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 195, 255, 0.15);
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+    }
+
+    .modal input:focus, .modal select:focus {
+      outline: none;
+      border-color: #00c3ff;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #00c3ff;
+      color: #0a0a0f;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #e0e0e0;
+      border: 1px solid rgba(0, 195, 255, 0.15) !important;
+    }
+
+    /* === NAV BAR === */
+    .navbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      background: rgba(10, 10, 15, 0.95);
+      border-top: 1px solid rgba(0, 195, 255, 0.1);
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      color: #5a8a9a;
+      transition: all 0.3s;
+      background: none;
+      border: none;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .nav-item.active, .nav-item:hover { color: #00c3ff; }
+    .nav-item .nav-icon { font-size: 1.3rem; margin-bottom: 3px; }
+    .nav-item .nav-label { font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; }
+
+    /* === PAGES === */
+    .page { display: none; padding-bottom: 80px; }
+    .page.active { display: block; }
+
+    /* === ANIMATIONS === */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* === ARC REACTOR LOADER === */
+    .arc-reactor {
+      width: 60px;
+      height: 60px;
+      border: 3px solid rgba(0, 195, 255, 0.3);
+      border-top: 3px solid #00c3ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 50px auto;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* === STREAK === */
+    .streak-display {
+      text-align: center;
+      padding: 20px;
+      margin: 20px;
+      background: rgba(0, 195, 255, 0.03);
+      border: 1px solid rgba(0, 195, 255, 0.1);
+      border-radius: 12px;
+    }
+
+    .streak-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      color: #00c3ff;
+    }
+
+    .streak-label {
+      font-size: 0.8rem;
+      color: #5a8a9a;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .streak-fire { font-size: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="logo glow">J.A.R.V.I.S.</div>
+    <div class="time" id="clock">00:00</div>
+  </div>
+
+  <!-- ========== PAGE: HOME ========== -->
+  <div class="page active" id="page-home">
+
+    <div class="jarvis-greeting">
+      <div class="hello glow" id="greeting">Guten Morgen, Sir.</div>
+      <div class="date" id="dateDisplay"></div>
+    </div>
+
+    <div class="jarvis-message">
+      <p id="jarvisMsg">Systeme werden initialisiert<span class="typing"></span></p>
+    </div>
+
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="icon">📚</div>
+        <div class="label">Aufgaben</div>
+        <div class="value" id="taskCount">0</div>
+      </div>
+      <div class="status-card danger" id="examCard">
+        <div class="icon">⚠️</div>
+        <div class="label">Nächste Klausur</div>
+        <div class="value" id="nextExam">—</div>
+      </div>
+      <div class="status-card success">
+        <div class="icon">📊</div>
+        <div class="label">Schnitt</div>
+        <div class="value" id="avgGrade">—</div>
+      </div>
+      <div class="status-card">
+        <div class="icon">🔥</div>
+        <div class="label">Streak</div>
+        <div class="value" id="streakCount">0</div>
+      </div>
+    </div>
+
+    <!-- TODAY SCHEDULE -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Heute</span>
+        <div class="section-line"></div>
+      </div>
+      <div id="todaySchedule">
+        <p style="color:#5a8a9a; padding:10px;">Kein Stundenplan eingetragen.</p>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Offene Aufgaben</span>
+        <div class="section-line"></div>
+      </div>
+      <div id="taskList">
+        <p style="color:#5a8a9a; padding:10px;">Keine Aufgaben. Sehr gut, Sir.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== PAGE: SCHEDULE ========== -->
+  <div class="page" id="page-schedule">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Stundenplan</span>
+        <div class="section-line"></div>
+      </div>
+
+      <div style="display:flex; gap:5px; margin-bottom:15px; overflow-x:auto; padding-bottom:5px;">
+        <button class="day-btn" onclick="showDay(0)">Mo</button>
+        <button class="day-btn" onclick="showDay(1)">Di</button>
+        <button class="day-btn" onclick="showDay(2)">Mi</button>
+        <button class="day-btn" onclick="showDay(3)">Do</button>
+        <button class="day-btn" onclick="showDay(4)">Fr</button>
+      </div>
+
+      <div id="scheduleList"></div>
+    </div>
+  </div>
+
+  <!-- ========== PAGE: GRADES ========== -->
+  <div class="page" id="page-grades">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Noten-Analyse</span>
+        <div class="section-line"></div>
+      </div>
+      <div id="gradeList"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Klausuren</span>
+        <div class="section-line"></div>
+      </div>
+      <div id="examList"></div>
+    </div>
+  </div>
+
+  <!-- ========== PAGE: STREAK ========== -->
+  <div class="page" id="page-streak">
+    <div class="streak-display">
+      <div class="streak-fire">🔥</div>
+      <div class="streak-number" id="streakBig">0</div>
+      <div class="streak-label">Tage Streak</div>
+    </div>
+
+    <div class="jarvis-message">
+      <p id="streakMsg">Streak-Analyse wird geladen...</p>
+    </div>
+  </div>
+
+  <!-- ========== NAV BAR ========== -->
+  <div class="navbar">
+    <button class="nav-item active" onclick="switchPage('home')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('schedule')">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">Plan</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('grades')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Noten</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('streak')">
+      <span class="nav-icon">🔥</span>
+      <span class="nav-label">Streak</span>
+    </button>
+  </div>
+
+  <!-- ========== FAB ========== -->
+  <button class="fab" onclick="openModal()">+</button>
+
+  <!-- ========== MODAL ========== -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3 id="modalTitle">NEUE AUFGABE</h3>
+
+      <div id="modalContent">
+        <select id="modalType" onchange="changeModalType()">
+          <option value="task">Aufgabe</option>
+          <option value="exam">Klausur</option>
+          <option value="grade">Note</option>
+          <option value="schedule">Stundenplan</option>
+        </select>
+
+        <div id="formFields"></div>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn-secondary" onclick="closeModal()">Abbrechen</button>
+        <button class="btn-primary" onclick="saveEntry()">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .day-btn {
+      padding: 8px 16px;
+      background: rgba(0, 195, 255, 0.05);
+      border: 1px solid rgba(0, 195, 255, 0.15);
+      border-radius: 8px;
+      color: #5a8a9a;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .day-btn:hover, .day-btn.active {
+      background: rgba(0, 195, 255, 0.15);
+      color: #00c3ff;
+      border-color: #00c3ff;
+    }
+  </style>
+
+<script>
+// ========================
+// J.A.R.V.I.S. SCHOOL OS
+// ========================
+
+// --- DATA STORAGE ---
+function getData(key) {
+  return JSON.parse(localStorage.getItem(key)) || [];
+}
+function setData(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+// --- CLOCK ---
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.getHours().toString().padStart(2,'0') + ':' +
+    now.getMinutes().toString().padStart(2,'0') + ':' +
+    now.getSeconds().toString().padStart(2,'0');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// --- DATE & GREETING ---
+function updateGreeting() {
+  const now = new Date();
+  const hour = now.getHours();
+  let greet = 'Guten Abend, Sir.';
+  if (hour < 12) greet = 'Guten Morgen, Sir.';
+  else if (hour < 17) greet = 'Guten Tag, Sir.';
+  document.getElementById('greeting').textContent = greet;
+
+  const days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  const months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  document.getElementById('dateDisplay').textContent =
+    days[now.getDay()] + ', ' + now.getDate() + '. ' + months[now.getMonth()] + ' ' + now.getFullYear();
+}
+updateGreeting();
+
+// --- JARVIS MESSAGE ---
+function updateJarvisMessage() {
+  const tasks = getData('tasks').filter(t => !t.done);
+  const exams = getData('exams');
+  const now = new Date();
+  let msg = '';
+
+  // Find nearest exam
+  let nearest = null;
+  let nearestDays = Infinity;
+  exams.forEach(e => {
+    const diff = Math.ceil((new Date(e.date) - now) / (1000*60*60*24));
+    if (diff >= 0 && diff < nearestDays) {
+      nearestDays = diff;
+      nearest = e;
+    }
+  });
+
+  if (nearest && nearestDays <= 3) {
+    msg = `⚠️ Achtung, Sir. Klausur in ${nearestDays} Tag(en): ${nearest.subject}. Ich empfehle, heute zu lernen.`;
+  } else if (tasks.length > 3) {
+    msg = `Sir, Sie haben ${tasks.length} offene Aufgaben. Ich empfehle, mit der dringendsten zu beginnen.`;
+  } else if (tasks.length > 0) {
+    msg = `${tasks.length} Aufgabe(n) offen. Alles im grünen Bereich, Sir.`;
+  } else {
+    msg = `Alle Systeme nominal. Keine offenen Aufgaben. Beeindruckend, Sir.`;
+  }
+
+  document.getElementById('jarvisMsg').innerHTML = msg + '<span class="typing"></span>';
+}
+
+// --- TASKS ---
+function renderTasks() {
+  const tasks = getData('tasks');
+  const list = document.getElementById('taskList');
+  const openTasks = tasks.filter(t => !t.done);
+
+  document.getElementById('taskCount').textContent = openTasks.length;
+
+  if (tasks.length === 0) {
+    list.innerHTML = '<p style="color:#5a8a9a; padding:10px;">Keine Aufgaben. Sehr gut, Sir.</p>';
+    return;
+  }
+
+  list.innerHTML = tasks.map((t, i) => `
+    <div class="task-item ${t.done ? 'done' : ''}" onclick="toggleTask(${i})">
+      <div class="task-checkbox"></div>
+      <span>${t.text}</span>
+      <span class="task-subject">${t.subject}</span>
+    </div>
+  `).join('');
+}
+
+function toggleTask(index) {
+  const tasks = getData('tasks');
+  tasks[index].done = !tasks[index].done;
+  setData('tasks', tasks);
+  renderTasks();
+  updateJarvisMessage();
+  updateStreak();
+}
+
+// --- EXAMS ---
+function renderExams() {
+  const exams = getData('exams');
+  const now = new Date();
+
+  // Update next exam on home
+  let nearest = null;
+  let nearestDays = Infinity;
+  exams.forEach(e => {
+    const diff = Math.ceil((new Date(e.date) - now) / (1000*60*60*24));
+    if (diff >= 0 && diff < nearestDays) {
+      nearestDays = diff;
+      nearest = e;
+    }
+  });
+
+  document.getElementById('nextExam').textContent = nearest
+    ? `${nearestDays}d`
+    : '—';
+
+  // Exam list on grades page
+  const examList = document.getElementById('examList');
+  if (exams.length === 0) {
+    examList.innerHTML = '<p style="color:#5a8a9a; padding:10px;">Keine Klausuren eingetragen.</p>';
+    return;
+  }
+
+  examList.innerHTML = exams.map(e => {
+    const diff = Math.ceil((new Date(e.date) - now) / (1000*60*60*24));
+    const soon = diff <= 3 && diff >= 0;
+    return `
+      <div class="exam-card ${soon ? 'soon' : ''}">
+        <div>
+          <div class="exam-name">${e.subject}</div>
+          <div style="font-size:0.8rem; color:#5a8a9a;">${e.date}</div>
+        </div>
+        <div class="exam-days">${diff >= 0 ? diff + 'd' : 'Vorbei'}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// --- GRADES ---
+function renderGrades() {
+  const grades = getData('grades');
+  const gradeList = document.getElementById('gradeList');
+
+  if (grades.length === 0) {
+    gradeList.innerHTML = '<p style="color:#5a8a9a; padding:10px;">Keine Noten eingetragen.</p>';
+    document.getElementById('avgGrade').textContent = '—';
+    return;
+  }
+
+  // Group by subject
+  const subjects = {};
+  grades.forEach(g => {
+    if (!subjects[g.subject]) subjects[g.subject] = [];
+    subjects[g.subject].push(g.grade);
+  });
+
+  let totalSum = 0;
+  let totalCount = 0;
+
+  gradeList.innerHTML = Object.keys(subjects).map(sub => {
+    const avg = subjects[sub].reduce((a,b) => a+b, 0) / subjects[sub].length;
+    totalSum += avg;
+    totalCount++;
+
+    const percent = Math.max(0, (6 - avg) / 5 * 100);
+    let color = '#2ed573';
+    if (avg > 3) color = '#ffa502';
+    if (avg > 4.5) color = '#ff4757';
+
+    return `
+      <div class="grade-bar">
+        <div class="grade-subject">${sub}</div>
+        <div class="grade-track">
+          <div class="grade-fill" style="width:${percent}%; background:${color};"></div>
+        </div>
+        <div class="grade-value" style="color:${color}">${avg.toFixed(1)}</div>
+      </div>
+    `;
+  }).join('');
+
+  const totalAvg = (totalSum / totalCount).toFixed(1);
+  document.getElementById('avgGrade').textContent = totalAvg;
+}
+
+// --- SCHEDULE ---
+function renderSchedule(dayIndex) {
+  const schedule = getData('schedule');
+  const daySchedule = schedule.filter(s => s.day === dayIndex);
+  const list = document.getElementById('scheduleList');
+
+  if (daySchedule.length === 0) {
+    list.innerHTML = '<p style="color:#5a8a9a; padding:10px;">Kein Unterricht eingetragen.</p>';
+    return;
+  }
+
+  daySchedule.sort((a,b) => a.time.localeCompare(b.time));
+
+  list.innerHTML = daySchedule.map(s => `
+    <div class="schedule-item">
+      <div class="time-badge">${s.time}</div>
+      <div class="subject">${s.subject}</div>
+      <div class="room">${s.room || ''}</div>
+    </div>
+  `).join('');
+}
+
+function renderTodaySchedule() {
+  const now = new Date();
+  let dayIndex = now.getDay() - 1;
+  if (dayIndex < 0 || dayIndex > 4) dayIndex = 0;
+
+  const schedule = getData('schedule');
+  const daySchedule = schedule.filter(s => s.day === dayIndex);
+  const list = document.getElementById('todaySchedule');
+
+  if (daySchedule.length === 0) {
+    list.innerHTML = '<p style="color:#5a8a9a; padding:10px;">Kein Unterricht heute.</p>';
+    return;
+  }
+
+  daySchedule.sort((a,b) => a.time.localeCompare(b.time));
+
+  list.innerHTML = daySchedule.map(s => `
+    <div class="schedule-item">
+      <div class="time-badge">${s.time}</div>
+      <div class="subject">${s.subject}</div>
+      <div class="room">${s.room || ''}</div>
+    </div>
+  `).join('');
+}
+
+function showDay(index) {
+  document.querySelectorAll('.day-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === index);
+  });
+  renderSchedule(index);
+}
+
+// --- STREAK ---
+function updateStreak() {
+  let streak = parseInt(localStorage.getItem('streak')) || 0;
+  const lastDate = localStorage.getItem('lastStreakDate');
+  const today = new Date().toDateString();
+
+  if (lastDate !== today) {
+    const tasks = getData('tasks');
+    const doneSomething = tasks.some(t => t.done);
+    if (doneSomething) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      if (lastDate === yesterday.toDateString()) {
+        streak++;
+      } else if (lastDate !== today) {
+        streak = 1;
+      }
+      localStorage.setItem('streak', streak);
+      localStorage.setItem('lastStreakDate', today);
+    }
+  }
+
+  document.getElementById('streakCount').textContent = streak;
+  document.getElementById('streakBig').textContent = streak;
+
+  // Streak message
+  let msg = '';
+  if (streak === 0) msg = 'Noch keine Streak, Sir. Erledigen Sie heute eine Aufgabe, um zu starten.';
+  else if (streak < 3) msg = `${streak} Tage. Ein guter Anfang, Sir. Bleiben Sie dran.`;
+  else if (streak < 7) msg = `${streak} Tage Streak. Beeindruckend, Sir. Weiter so.`;
+  else if (streak < 14) msg = `${streak} Tage. Ihre Disziplin ist bemerkenswert, Sir.`;
+  else if (streak < 30) msg = `${streak} Tage! Außergewöhnlich, Sir. Sie übertreffen 95% aller Schüler.`;
+  else msg = `${streak} TAGE! Sir, das ist... legendär. Tony Stark wäre stolz.`;
+
+  document.getElementById('streakMsg').textContent = msg;
+}
+
+// --- NAVIGATION ---
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  if (page === 'schedule') showDay(0);
+  if (page === 'grades') { renderGrades(); renderExams(); }
+  if (page === 'streak') updateStreak();
+}
+
+// --- MODAL ---
+function openModal() { 
+  document.getElementById('modalOverlay').classList.add('active');
+  changeModalType();
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+function changeModalType() {
+  const type = document.getElementById('modalType').value;
+  const fields = document.getElementById('formFields');
+  const title = document.getElementById('modalTitle');
+
+  if (type === 'task') {
+    title.textContent = 'NEUE AUFGABE';
+    fields.innerHTML = `
+      <input id="f_subject" placeholder="Fach" />
+      <input id="f_text" placeholder="Aufgabe" />
+    `;
+  } else if (type === 'exam') {
+    title.textContent = 'NEUE KLAUSUR';
+    fields.innerHTML = `
+      <input id="f_subject" placeholder="Fach" />
+      <input id="f_date" type="date" />
+    `;
+  } else if (type === 'grade') {
+    title.textContent = 'NEUE NOTE';
+    fields.innerHTML = `
+      <input id="f_subject" placeholder="Fach" />
+      <input id="f_grade" type="number" min="1" max="6" step="0.1" placeholder="Note (1-6)" />
+    `;
+  } else if (type === 'schedule') {
+    title.textContent = 'STUNDENPLAN';
+    fields.innerHTML = `
+      <select id="f_day">
+        <option value="0">Montag</option>
+        <option value="1">Dienstag</option>
+        <option value="2">Mittwoch</option>
+        <option value="3">Donnerstag</option>
+        <option value="4">Freitag</option>
+      </select>
+      <input id="f_time" type="time" />
+      <input id="f_subject" placeholder="Fach" />
+      <input id="f_room" placeholder="Raum (optional)" />
+    `;
+  }
+}
+
+function saveEntry() {
+  const type = document.getElementById('modalType').value;
+
+  if (type === 'task') {
+    const tasks = getData('tasks');
+    tasks.push({
+      subject: document.getElementById('f_subject').value,
+      text: document.getElementById('f_text').value,
+      done: false
+    });
+    setData('tasks', tasks);
+    renderTasks();
+  } else if (type === 'exam') {
+    const exams = getData('exams');
+    exams.push({
+      subject: document.getElementById('f_subject').value,
+      date: document.getElementById('f_date').value
+    });
+    setData('exams', exams);
+    renderExams();
+  } else if (type === 'grade') {
+    const grades = getData('grades');
+    grades.push({
+      subject: document.getElementById('f_subject').value,
+      grade: parseFloat(document.getElementById('f_grade').value)
+    });
+    setData('grades', grades);
+    renderGrades();
+  } else if (type === 'schedule') {
+    const schedule = getData('schedule');
+    schedule.push({
+      day: parseInt(document.getElementById('f_day').value),
+      time: document.getElementById('f_time').value,
+      subject: document.getElementById('f_subject').value,
+      room: document.getElementById('f_room').value
+    });
+    setData('schedule', schedule);
+    renderTodaySchedule();
+  }
+
+  updateJarvisMessage();
+  closeModal();
+}
+
+// --- INIT ---
+renderTasks();
+renderExams();
+renderGrades();
+renderTodaySchedule();
+updateJarvisMessage();
+updateStreak();
+
+// --- SERVICE WORKER ---
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js').catch(() => {});
+}
+</script>
+
+</body>
+</html>
